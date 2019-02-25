@@ -7,7 +7,7 @@ acdh-spacytei is a python package providing utility classes and functions to pro
 Installation
 ------------
 
-`pip install acdh-spacy-tei`
+`pip install acdh-spacytei`
 
 
 Licensing
