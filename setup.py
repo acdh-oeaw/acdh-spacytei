@@ -52,6 +52,9 @@ setup(
     author='Peter Andorfer',
     author_email='peter.andorfer@oeaw.ac.at',
     url='https://github.com/acdh-oeaw/acdh-spacytei',
+    packages=[
+        'spacytei',
+    ],
     include_package_data=True,
     install_requires=[
         'spacy>=2.0.18',
