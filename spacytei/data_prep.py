@@ -5,7 +5,7 @@ to save, clean and load spacy-like NER training data.
 
 import pandas as pd
 import ast
-import langid
+# import langid
 
 
 def clean_train_data(train_data, min_ents=3, min_text_len=0, lang=['de']):

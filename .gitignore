@@ -45,3 +45,8 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+
+notebooks/*
+
+.ipynb_checkpoints/*
+Untitled.ipynb
