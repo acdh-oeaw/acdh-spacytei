@@ -2,6 +2,7 @@ import re
 import lxml.etree as ET
 
 from spacytei.xml import XMLReader
+from spacytei.data_prep import ne_offsets_by_sent
 
 
 NER_TAG_MAP = {
@@ -19,6 +20,15 @@ NER_TAG_MAP = {
 class TeiReader(XMLReader):
 
     """ a class to read an process tei-documents"""
+
+    def any_xpath(self, any_xpath='//tei:rs'):
+
+        """ Runs any xpath expressions against the parsed document
+        :param any_xpath: Any XPath expression.
+        :return: The result of the xpath
+
+        """
+        return self.tree.xpath(any_xpath, namespaces=self.ns_tei)
 
     def extract_ne_elements(self, parent_node, ne_xpath='//tei:rs'):
 
@@ -106,7 +116,7 @@ class TeiReader(XMLReader):
         Takes the parent node(s) as context
         :param NER_TAG_MAP: A dictionary providing mapping from TEI tags used to tag NEs to\
         spacy-tags
-        :return: A list of spacy-like NER Tuples [('some text'), entities{[(15, 19, 'place')]}]
+        :return: A list of spacy-like NER Tuples [('some text'), {'entities': [(15, 19, 'place')]}]
         """
 
         text_nes_dict = self.get_text_nes_list(parent_nodes, ne_xpath, NER_TAG_MAP)
@@ -166,40 +176,7 @@ class TeiReader(XMLReader):
         import spacy
         nlp = spacy.load(model)
         text_nes = self.get_text_nes_list(parent_nodes, ne_xpath, NER_TAG_MAP)
-        results = []
-        for entry in text_nes:
-            ner_dicts = entry['ner_dicts']
-            in_text = entry['text']
-            doc = nlp(in_text)
-            for sent in doc.sents:
-                entities = []
-                if sent.text != "":
-                    plain_text = sent.text
-                    for x in ner_dicts:
-                        for m in re.finditer(x['text'], plain_text):
-                            entities.append([m.start(), m.end(), x['ne_type']])
-                    entities = [item for item in set(tuple(row) for row in entities)]
-                    entities = sorted(entities, key=lambda x: x[0])
-                    ents = []
-                    next_item_index = 1
-                    for x in entities:
-                        cur_start = x[0]
-                        try:
-                            next_start = entities[next_item_index][0]
-                        except IndexError:
-                            next_start = 9999999999999999999999
-                        if cur_start == next_start:
-                            pass
-                        else:
-                            ents.append(x)
-                        next_item_index = next_item_index + 1
-                train_data = (
-                    plain_text,
-                    {
-                        "entities": ents
-                    }
-                )
-                results.append(train_data)
+        results = ne_offsets_by_sent(text_nes, model=model)
         return results
 
     def create_tokenlist(self):

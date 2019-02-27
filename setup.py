@@ -62,6 +62,7 @@ setup(
         'lxml>=4.1.1',
         'pandas>=0.23.3',
         'requests==2.20.1',
+        'langid=>1.1.6',
     ],
     license="MIT",
     classifiers=[

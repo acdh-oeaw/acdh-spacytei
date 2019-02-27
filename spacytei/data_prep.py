@@ -2,13 +2,65 @@
 This module provides some helper functions\
 to save, clean and load spacy-like NER training data.
 """
+import re
+import ast
+import langid
 
 import pandas as pd
-import ast
-# import langid
 
 
-def clean_train_data(train_data, min_ents=3, min_text_len=0, lang=['de']):
+def ne_offsets_by_sent(
+    text_nest_list=[],
+    model='de_core_news_sm',
+):
+
+    """ extracts offsets of NEs and the NE-type grouped by sents
+    :param text_nest_list: A list of list with following structure:\
+    [{"text": "Wien ist schön", "ner_dicts": [{"text": "Wien", "ne_type": "LOC"}]}]
+    :param model: The name of the spacy model which should be used for sentence splitting.
+    :return: A list of spacy-like NER Tuples [('some text'), entities{[(15, 19, 'place')]}]
+    """
+    import spacy
+    nlp = spacy.load(model)
+    text_nes = text_nest_list
+    results = []
+    for entry in text_nes:
+        ner_dicts = entry['ner_dicts']
+        in_text = entry['text']
+        doc = nlp(in_text)
+        for sent in doc.sents:
+            entities = []
+            if sent.text != "":
+                plain_text = sent.text
+                for x in ner_dicts:
+                    for m in re.finditer(x['text'], plain_text):
+                        entities.append([m.start(), m.end(), x['ne_type']])
+                entities = [item for item in set(tuple(row) for row in entities)]
+                entities = sorted(entities, key=lambda x: x[0])
+                ents = []
+                next_item_index = 1
+                for x in entities:
+                    cur_start = x[0]
+                    try:
+                        next_start = entities[next_item_index][0]
+                    except IndexError:
+                        next_start = 9999999999999999999999
+                    if cur_start == next_start:
+                        pass
+                    else:
+                        ents.append(x)
+                    next_item_index = next_item_index + 1
+            train_data = (
+                plain_text,
+                {
+                    "entities": ents
+                }
+            )
+            results.append(train_data)
+    return results
+
+
+def clean_train_data(train_data, min_ents=0, min_text_len=5, lang=['de']):
 
     """ removes items with no entities or fewer entities then min_ents
         :param train_data: A list of lists of spacy-like NER Tuple\
