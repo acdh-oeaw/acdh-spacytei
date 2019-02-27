@@ -5,10 +5,13 @@ from spacytei.tei import TeiReader
 from spacytei.data_prep import ne_offsets_by_sent
 
 
-def recogito_dump_to_spacy_ner(recogito_export, tei_doc):
+def recogito_dump_to_spacy_ner(
+    recogito_export, tei_doc, regex_pattern="r'text/body/.+?/p\[[0-9]+\]'"
+):
     """turns a recogito csv dump and the according TEI/XML to spacy-like NER Tuples
     :param recogito_export: A recogito csv
     :param tei_doc: The XML/TEI the recogito csv was derived from
+    :regex_pattern: Regex pattern to detect the entities textual context
     :return: A list of spacy-like NER Tuples [('some text'), {'entities': [(15, 19, 'place')]}]
     """
 
@@ -22,7 +25,7 @@ def recogito_dump_to_spacy_ner(recogito_export, tei_doc):
         endxp, endc = endxp[8:].split('::')
         if startxp.startswith('text/body') and startxp == endxp:
             ent_dict = {}
-            parent_node = re.search(r'text/body/.+?/p\[[0-9]+\]', startxp).group()
+            parent_node = re.search(regex_pattern, startxp).group()
             parent_node = "tei:{}".format(parent_node)
             parent_node = "/tei:".join(parent_node.split('/'))
             plaintext = doc.any_xpath("{}//text()".format(parent_node))
