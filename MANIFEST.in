@@ -1,4 +1,4 @@
 include LICENSE
 include README.rst
 recursive-include spacytei *py
-recursive-include/schema * 
+recursive-include spacytei/schema * 

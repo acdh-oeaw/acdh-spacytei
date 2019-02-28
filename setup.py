@@ -58,13 +58,13 @@ setup(
     include_package_data=True,
     install_requires=[
         'spacy>=2.0.18',
-        'scikit-learn>=0.20.2'
+        'scikit-learn>=0.20.2',
         'gensim>=3.7.1',
         'lxml>=4.1.1',
         'pandas>=0.23.3',
-        'requests==2.20.1',
-        'langid=>1.1.6',
-        'jsonschema=>3.0.0',
+        'requests>=2.20.1',
+        'langid>=1.1.6',
+        'jsonschema>=3.0.0',
     ],
     license="MIT",
     classifiers=[
