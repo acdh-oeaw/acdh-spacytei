@@ -49,8 +49,8 @@ setup(
     version=version,
     description="""A package to ease processing (not only) TEI documents with spaCy""",
     long_description=readme + '\n\n' + history,
-    author='Peter Andorfer',
-    author_email='peter.andorfer@oeaw.ac.at',
+    author='Peter Andorfer, Matthias Schlögl',
+    author_email='matthias.schloegl@oeaw.ac.at, peter.andorfer@oeaw.ac.at',
     url='https://github.com/acdh-oeaw/acdh-spacytei',
     packages=[
         'spacytei',
@@ -58,6 +58,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'spacy>=2.0.18',
+        'scikit-learn>=0.20.2'
         'gensim>=3.7.1',
         'lxml>=4.1.1',
         'pandas>=0.23.3',
