@@ -17,6 +17,8 @@ import spacy
 from gensim.models import Word2Vec
 from gensim.utils import simple_preprocess
 
+from spacytei.data_loaders import get_doc_list
+
 
 def stream_docs_to_file(domain, app_name, spacy_model='de_core_news_sm', min_len=15, verbose=True):
 
@@ -30,30 +32,14 @@ def stream_docs_to_file(domain, app_name, spacy_model='de_core_news_sm', min_len
         :return: A list comprehension as well as as the filename where the corpus is stored
     """
 
-    endpoint = "{}/exist/restxq/{}/api/collections/editions".format(domain, app_name)
-    r = requests.get(endpoint)
-    if r.status_code == 200:
-        if verbose:
-            print('connection to {}:all good'.format(endpoint))
-    else:
-        print(
-            "There is a problem with connection to {}, status code: {}".format(
-                r.status_code, endpoint
-            )
-        )
-        return None
-    hits = r.json()['result']['meta']['hits']
-    all_files = requests.get("{}?page[size]={}".format(endpoint, hits)).json()['data']
-    files = [x['links']['self'] for x in all_files]
-    if verbose:
-        print("{} documents found".format(len(files)))
-    filename = 'data/{}.txt'.format(app_name)
+    files = get_doc_list(domain, app_name, verbose=verbose)
+    filename = '{}.txt'.format(app_name)
     if verbose:
         print("start streaming documents to {}".format(filename))
     nlp = spacy.load(spacy_model)
     with open(filename, 'w', encoding="utf-8") as f:
         for x in files:
-            url = "{}{}?format=text".format(domain, x)
+            url = "{}?format=text".format(x)
             if verbose:
                 print("download doc: {}".format(url))
             r = requests.get(url)
