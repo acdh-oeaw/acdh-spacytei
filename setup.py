@@ -64,6 +64,7 @@ setup(
         'pandas>=0.23.3',
         'requests==2.20.1',
         'langid=>1.1.6',
+        'jsonschema=>3.0.0',
     ],
     license="MIT",
     classifiers=[
