@@ -33,9 +33,14 @@ class XMLReader():
             print(e)
             self.parsed_file = "parsing didn't work"
 
+    def return_byte_like_object(self):
+        return ET.tostring(self.tree, encoding="utf-8")
+
+    def return_string(self):
+        return self.return_byte_like_object().decode('utf-8')
+
     def tree_to_file(self, file=None):
         """saves current tree to file"""
-        import lxml.etree as ET
         if file:
             pass
         else:

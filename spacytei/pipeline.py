@@ -1,19 +1,20 @@
-#from exceptions import ValueError, AttributeError
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
+import os
 import json
 import spacy
 import requests
-from .conversion import Converter
-from enrich.default_settings import SPACY_LANG_LST, SPACY_PIPELINE
-import os
-from lxml import etree
+
 from io import StringIO, BytesIO
+from lxml import etree
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
+from spacytei.conversion import Converter
+from spacytei.config import SPACY_LANG_LST, SPACY_PIPELINE
 
 
 def check_validity_payload(kind, payload):
     if kind == "application/json+acdhlang":
-        with open('jsonschema/acdh_lang_jsonschema.json') as s:
+        with open('spacytei/schema/acdh_lang_jsonschema.json') as s:
             schema = json.load(s)
             try:
                 validate(payload, schema)
@@ -32,11 +33,15 @@ def check_validity_payload(kind, payload):
             return False
     elif kind == "application/xml+tei":
         return True
-        with open('jsonschema/tei_all.xsd', 'rb') as schema_tei:
+        with open('spacytei/schema/tei_all.xsd', 'rb') as schema_tei:
             schema_tei = schema_tei.read()
         xml_doc = etree.parse(BytesIO(payload))
         schema_tei_doc = etree.parse(BytesIO(schema_tei))
-        schema_tei = etree.XMLSchema(schema_tei_doc)
+        try:
+            schema_tei = etree.XMLSchema(schema_tei_doc)
+        except Exception as e:
+            print(e)
+            return True
         if not schema_tei.assertValid(xml_doc):
             return False
         else:
@@ -51,10 +56,11 @@ class PipelineProcessBase:
     returns = "application/json+acdhlang"
     payload = None
     valid = False
-    
+
     def convert_payload(self):
-        self.payload = Converter(data_type=self.mime, data=self.payload, original_process=self).convert(to=self.accepts[0])
-        #print('payload converted: {}'.format(self.payload))
+        self.payload = Converter(
+            data_type=self.mime, data=self.payload, original_process=self
+        ).convert(to=self.accepts[0])
         self.mime = self.accepts[0]
         self.check_validity()
 
@@ -83,9 +89,7 @@ class PipelineProcessBase:
         self.context = kwargs.get('context', None)
         if self.context is None:
             self.context = {}
-        #print(kwargs)
         print(self.mime)
-        #print('payload: {}'.format(self.payload))
         self.check_validity()
 
 
@@ -95,6 +99,7 @@ class SpacyProcess(PipelineProcessBase):
 
     def process(self):
         if self.mime == "text/plain":
+            print(self.payload)
             self.payload = self.nlp(self.payload)
         else:
             for name, proc in self.nlp.pipeline:
@@ -106,11 +111,11 @@ class SpacyProcess(PipelineProcessBase):
         self.options = options
         if self.options is not None:
             if self.options['model']:
-                model = os.path.join('~/media/pipeline_models', self.options['model']) 
+                model = os.path.join('~/media/pipeline_models', self.options['model'])
             elif self.options['language']:
                 model = SPACY_LANG_LST[self.options['language'].lower()]
         else:
-            model = 'de'
+            model = 'de_core_news_sm'
         if self.pipeline is None:
             disable_pipeline = []
         else:
@@ -129,7 +134,7 @@ class SpacyProcess(PipelineProcessBase):
 class XtxProcess(PipelineProcessBase):
     accepts = ['application/xml+tei']
     returns = 'application/xml+tei'
-    
+
     def process(self):
         headers = {
             'Content-type': 'application/xml;charset=UTF-8', 'accept': 'application/xml'
