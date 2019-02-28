@@ -52,3 +52,5 @@ notebooks/*
 Untitled.ipynb
 
 *.ipynb
+
+*mrptestapp.txt
