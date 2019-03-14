@@ -206,23 +206,24 @@ class TeiReader(XMLReader):
         """ takes a tokenlist and updated the tei:w tags. Returns the updated self.tree """
 
         expr = './/tei:w[@xml:id=$xmlid]'
-        for x in tokenlist:
-            try:
-                node = self.tree.xpath(expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
-            except IndexError:
-                node = None
-            if node is not None:
+        for sent in tokenlist:
+            for x in sent['tokens']:
                 try:
-                    node.attrib['lemma'] = x['lemma']
-                except AttributeError:
-                    pass
-                try:
-                    node.attrib['type'] = x['type']
-                except AttributeError:
-                    pass
-                try:
-                    node.attrib['ana'] = x['pos']
-                except AttributeError:
-                    pass
+                    node = self.tree.xpath(expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
+                except IndexError:
+                    node = None
+                if node is not None:
+                    try:
+                        node.attrib['lemma'] = x['lemma']
+                    except AttributeError:
+                        pass
+                    try:
+                        node.attrib['type'] = x['type']
+                    except AttributeError:
+                        pass
+                    try:
+                        node.attrib['ana'] = x['pos']
+                    except AttributeError:
+                        pass
 
         return self.tree

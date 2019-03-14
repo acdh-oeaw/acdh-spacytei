@@ -14,6 +14,7 @@ MAPPING_CONVERTERS = {'from': {
     'to': {
         'application/xml+tei': (TeiReader, [('xml', 'context.original_xml')], 'process_tokenlist', [('tokenlist', '$data_json',),]),
         'spacyDoc': (process_tokenlist, [('nlp', 'nlp'), ('tokenlist', '$data_json')]),
+        'application/xml+tcf': (Tcf, [('xml', 'context.original_xml')], 'process_tokenlist', [('tokenlist', '$data_json',),]),
         'application/json+acdhlang': (doc_to_tokenlist, [('doc', 'payload')]),
     }
 }

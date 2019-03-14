@@ -20,17 +20,19 @@ class XMLReader():
         try:
             self.original = ET.parse(self.file)
         except Exception as e:
-            print(e)
+            print('could not parse file')
             self.original = ET.fromstring(self.file)
+            print('read string worked')
         try:
             self.tree = ET.parse(self.file)
         except Exception as e:
-            print(e)
+            print('could not parse tree')
             self.tree = ET.fromstring(self.file)
+            print('read string worked')
         try:
             self.parsed_file = ET.tostring(self.tree, encoding="utf-8")
         except Exception as e:
-            print(e)
+            print('parsing didnt work')
             self.parsed_file = "parsing didn't work"
 
     def tree_to_file(self, file=None):

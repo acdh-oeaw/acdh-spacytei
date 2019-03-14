@@ -84,7 +84,6 @@ class PipelineProcessBase:
         if self.context is None:
             self.context = {}
         #print(kwargs)
-        print(self.mime)
         #print('payload: {}'.format(self.payload))
         self.check_validity()
 

@@ -13,7 +13,10 @@ def doc_to_tokenlist_no_sents(doc):
     result = []
     for x in doc:
         token = {}
-        token['tokenId'] = x._.tokenId
+        if y.has_extension('tokenId'):
+            parts['tokenId'] = y._.tokenId
+        else:
+            parts['tokenId'] = y.i
         token['value'] = x.text
         token['lemma'] = x.lemma_
         token['pos'] = x.pos_
@@ -42,7 +45,10 @@ def doc_to_tokenlist(doc):
         chunk['tokens'] = []
         for y in x:
             parts = {}
-            parts['tokenId'] = y._.tokenId
+            try:
+                parts['tokenId'] = y._.tokenId
+            except:
+                parts['tokenId'] = y.i
             parts['value'] = y.text
             parts['lemma'] = y.lemma_
             parts['pos'] = y.pos_
@@ -70,10 +76,10 @@ def process_tokenlist(nlp, tokenlist, enriched=False, SPACY_ACCEPTED_DATA=SPACY_
     json['tokenArray'] = tokenlist
     ar_tok = [x['value'] for x in json['tokenArray']]
     ar_wsp = [x.get('whitespace', True) for x in json['tokenArray']]
-    if Token.get_extension('tokenId') is None:
-        Token.set_extension('tokenId', default=False)
     doc = Doc(nlp.vocab, words=ar_tok, spaces=ar_wsp)
     for id, t in enumerate(doc):
+        if t.get_extension('tokenId') is None:
+            t.set_extension('tokenId', default=False)
         t._.set('tokenId', json['tokenArray'][id].get('tokenId', False))
         t_type = json['tokenArray'][id].get('type', False)
         if not t.tag_ and t_type:
