@@ -68,14 +68,3 @@ def stream_docs_to_file(
                 print("found {} sents in doc".format(len(list(doc.sents))))
             [f.write(str(sent) + '\n') for sent in list(doc.sents) if len(sent) > min_len]
     return filename
-
-
-def read_input(input_file):
-    """ yields preprocessed lines read from a file (document per line)
-        :input_file: Name of the file to process
-        :return: yields processed lines of file
-    """
-
-    with open(input_file, encoding="utf-8") as f:
-        for line in f:
-            yield simple_preprocess(line)

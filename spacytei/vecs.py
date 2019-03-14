@@ -12,7 +12,16 @@ create_word_vecs(filename)
 from gensim.models import Word2Vec
 from gensim.utils import simple_preprocess
 
-from spacytei.dataloaders import read_input
+
+def read_input(input_file):
+    """ yields preprocessed lines read from a file (document per line)
+        :input_file: Name of the file to process
+        :return: yields processed lines of file
+    """
+
+    with open(input_file, encoding="utf-8") as f:
+        for line in f:
+            yield simple_preprocess(line)
 
 
 def create_word_vecs(input_file, size=300, window=5, min_count=2, workers=4):

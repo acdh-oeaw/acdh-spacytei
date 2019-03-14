@@ -1,0 +1,18 @@
+{
+	"tokenArray":
+	[
+		{"tokenId":1,"value":"Wir","whitespace":true},
+		{"tokenId":2,"value":"fahren","whitespace":true},
+		{"tokenId":3,"value":"nach","whitespace":true},
+		{"tokenId":4,"value":"Wien","whitespace":false},
+		{"tokenId":5,"value":".","whitespace":false}
+	],
+	"language":"deutsch",
+	"pipeline":
+	[
+		 ["acdh-tokenizer", {"profile": "default"}],
+		 ["treetagger-tagger", {"outputproperties": {"lemma":true,"no-unknown":false}}],
+		 ["spacy-parser", {"model":false}],
+		 ["spacy-ner",{"model":false}]
+	]
+}
