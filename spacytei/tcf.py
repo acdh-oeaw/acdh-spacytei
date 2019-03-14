@@ -96,7 +96,7 @@ class Tcf(XMLReader):
             token_list.append(token)
         return token_list
 
-    def process_tokenlist(self, tokenlist, by_id=None):
+    def process_tokenlist(self, tokenlist, by_id=False):
         """ takes a tokenlist and updates the selected elements. Returns the updated self.tree """
         nr_tokens = len(tokenlist)
         nr_nodes = len(self.tree.xpath('.//tcf:token', namespaces=self.nsmap))
@@ -104,39 +104,46 @@ class Tcf(XMLReader):
         print("# token-nodes: {}".format(nr_nodes))
         if by_id:
             expr = './/tcf:token[@ID=$id]'
-            for x in tokenlist:
-                print('by ID')
-                try:
-                    node = self.tree.xpath(expr, id=x['tokenId'], namespaces=self.nsmap)[0]
-                except IndexError:
-                    node = None
-                if node is not None:
+            for sent in tokenlist:
+                for x in sent['tokens']:
+                    print('by ID')
                     try:
-                        node.attrib['lemma'] = x['lemma']
-                    except AttributeError:
-                        pass
-                    try:
-                        node.attrib['iob'] = x['iob']
-                    except AttributeError:
-                        pass
-                    try:
-                        node.attrib['type'] = x['type']
-                    except AttributeError:
-                        pass
-                    try:
-                        node.attrib['ana'] = x['pos']
-                    except AttributeError:
-                        pass
-        elif nr_nodes == nr_nodes:
+                        node = self.tree.xpath(expr, id=x['tokenId'], namespaces=self.nsmap)[0]
+                    except IndexError:
+                        node = None
+                    if node is not None:
+                        try:
+                            node.attrib['lemma'] = x['lemma']
+                        except AttributeError:
+                            pass
+                        try:
+                            node.attrib['iob'] = x['iob']
+                        except AttributeError:
+                            pass
+                        try:
+                            node.attrib['type'] = x['type']
+                        except AttributeError:
+                            pass
+                        try:
+                            node.attrib['ana'] = x['pos']
+                        except AttributeError:
+                            pass
+        else:
             print('not by ID')
+            tokenlist_2 = []
+            for sent in tokenlist:
+                for x in sent['tokens']:
+                    tokenlist_2.append(x)
+            tokenlist = tokenlist_2
+            if len(tokenlist) != nr_nodes:
+                return self.tree
             counter = 0
+            print(tokenlist)
             for x in self.list_nodes('token'):
                 x.attrib['lemma'] = tokenlist[counter]['lemma']
                 x.attrib['iob'] = tokenlist[counter]['iob']
                 x.attrib['type'] = tokenlist[counter]['type']
                 x.attrib['ana'] = tokenlist[counter]['pos']
                 counter += 1
-        else:
-            pass
 
         return self.tree

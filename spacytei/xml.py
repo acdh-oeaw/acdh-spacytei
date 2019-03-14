@@ -21,13 +21,13 @@ class XMLReader():
             self.original = ET.parse(self.file)
         except Exception as e:
             print('could not parse file')
-            self.original = ET.fromstring(self.file)
+            self.original = ET.fromstring(self.file.encode('utf8'))
             print('read string worked')
         try:
             self.tree = ET.parse(self.file)
         except Exception as e:
             print('could not parse tree')
-            self.tree = ET.fromstring(self.file)
+            self.tree = ET.fromstring(self.file.encode('utf8'))
             print('read string worked')
         try:
             self.parsed_file = ET.tostring(self.tree, encoding="utf-8")
