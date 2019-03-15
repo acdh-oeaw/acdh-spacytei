@@ -226,31 +226,31 @@ class TeiReader(XMLReader):
                     if x.get('ana'):                        
                         node.attrib['ana'] = x.get('pos')
 
-                    if x.get('iob'):                        
+                    if x.get('iob'):
+                        # TO DO: Preserve the position other TEI tags such as
+                        # pg, lb, etc.
+                        # At the moment, they'll get pushed to
+                        # the end of the enclosing rs tag.
                         node.attrib['ent_iob'] = x.get('iob')
                         if x.get('iob').startswith('B-'):
                             ent_pos, ent_label = x.get('iob').split('-')
+
+                            # find the position of the node in its parent
                             parent_node = node.getparent()
                             node_pos = parent_node.index(node)
                             
                             # start the appropriate entity tag BEFORE word
-                            if ent_label == 'PER':
-                                entity_element = ET.Element('name', {'type': 'person'})
-                            elif ent_label == 'ORG':
-                                entity_element = ET.Element('orgName', {})
-                            elif ent_label == 'LOC':
-                                entity_element = ET.Element('name', {'type': 'place'})
-                            else:
-                                entity_element = ET.Element('name', {'type': 'misc'})
-
+                            entity_element = ET.Element('rs', {'type': ent_label})
                             entity_element.append(deepcopy(node))
                             node.clear()
+                            
                         elif x.get('iob').startswith('I') and entity_element is not None:
                             entity_element.append(deepcopy(node))
                             node.clear()
                             
                         elif x.get('iob').startswith('O') and entity_element is not None:
                             # insert the entity element
+                            # hoping that all the words in the entity have the same parent
                             parent_node.insert(node_pos, entity_element)
                             # reset the entity tag
                             parent_node = None
