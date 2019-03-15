@@ -1,5 +1,7 @@
 import logging
 import re
+from copy import deepcopy
+
 import lxml.etree as ET
 
 from spacytei.xml import XMLReader
@@ -205,7 +207,9 @@ class TeiReader(XMLReader):
     def process_tokenlist(self, tokenlist):
         """ takes a tokenlist and updated the tei:w tags. Returns the updated self.tree """
         expr = './/tei:w[@xml:id=$xmlid]'
-
+        parent_node = None
+        node_pos = 0
+        entity_element = None
         for sent in tokenlist:
             for x in sent['tokens']:
                 try:
@@ -222,9 +226,36 @@ class TeiReader(XMLReader):
                     if x.get('ana'):                        
                         node.attrib['ana'] = x.get('pos')
 
-                    if x.get('iob'):
+                    if x.get('iob'):                        
                         node.attrib['ent_iob'] = x.get('iob')
+                        if x.get('iob').startswith('B-'):
+                            ent_pos, ent_label = x.get('iob').split('-')
+                            parent_node = node.getparent()
+                            node_pos = parent_node.index(node)
+                            
+                            # start the appropriate entity tag BEFORE word
+                            if ent_label == 'PER':
+                                entity_element = ET.Element('name', {'type': 'person'})
+                            elif ent_label == 'ORG':
+                                entity_element = ET.Element('orgName', {})
+                            elif ent_label == 'LOC':
+                                entity_element = ET.Element('name', {'type': 'place'})
+                            else:
+                                entity_element = ET.Element('name', {'type': 'misc'})
 
-                    
+                            entity_element.append(deepcopy(node))
+                            node.clear()
+                        elif x.get('iob').startswith('I') and entity_element is not None:
+                            entity_element.append(deepcopy(node))
+                            node.clear()
+                            
+                        elif x.get('iob').startswith('O') and entity_element is not None:
+                            # insert the entity element
+                            parent_node.insert(node_pos, entity_element)
+                            # reset the entity tag
+                            parent_node = None
+                            entity_element = None
+                            
+                        
         return self.tree
 
