@@ -1,3 +1,4 @@
+import logging
 import re
 import lxml.etree as ET
 
@@ -202,10 +203,9 @@ class TeiReader(XMLReader):
         return token_list
 
     def process_tokenlist(self, tokenlist):
-
         """ takes a tokenlist and updated the tei:w tags. Returns the updated self.tree """
-
         expr = './/tei:w[@xml:id=$xmlid]'
+
         for sent in tokenlist:
             for x in sent['tokens']:
                 try:
@@ -213,17 +213,18 @@ class TeiReader(XMLReader):
                 except IndexError:
                     node = None
                 if node is not None:
-                    try:
-                        node.attrib['lemma'] = x['lemma']
-                    except AttributeError:
-                        pass
-                    try:
-                        node.attrib['type'] = x['type']
-                    except AttributeError:
-                        pass
-                    try:
-                        node.attrib['ana'] = x['pos']
-                    except AttributeError:
-                        pass
+                    if x.get('lemma'):
+                        node.attrib['lemma'] = x.get('lemma')
 
+                    if x.get('type'):
+                        node.attrib['type'] = x.get('type')
+
+                    if x.get('ana'):                        
+                        node.attrib['ana'] = x.get('pos')
+
+                    if x.get('iob'):
+                        node.attrib['ent_iob'] = x.get('iob')
+
+                    
         return self.tree
+
