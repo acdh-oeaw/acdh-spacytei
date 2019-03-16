@@ -68,3 +68,29 @@ def stream_docs_to_file(
                 print("found {} sents in doc".format(len(list(doc.sents))))
             [f.write(str(sent) + '\n') for sent in list(doc.sents) if len(sent) > min_len]
     return filename
+
+
+def lines_to_sents(input_file, nlp, sent_limit=10):
+    """ reads a text file line by line, splits each line in sents
+        :param input_file: Path to input files.
+        :param nlp: The spacy model you'd like to use for sent-splitting
+        :param sent_limit: Only sents with more characters are returned
+        :return: yields a sent
+    """
+    with open(input_file, encoding="utf-8") as f:
+        for x in f.readlines():
+            doc = nlp(x)
+            for sent in doc.sents:
+                if len(sent.text) > sent_limit:
+                    yield "{}\n".format(sent.text.rstrip())
+
+
+def sents_to_file(some_generator, output_file='out.txt'):
+    """ writes sents provided by some generator to a file
+        :param some_generator: A generator yielding strings
+        :param output_file: Filename of the output.
+        :return: filename of the output
+    """
+    with open(output_file, 'w', encoding="utf-8") as f:
+        f.writelines(some_generator)
+    return output_file
