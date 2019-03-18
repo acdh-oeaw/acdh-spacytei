@@ -223,7 +223,7 @@ class TeiReader(XMLReader):
                     if x.get('type'):
                         node.attrib['type'] = x.get('type')
 
-                    if x.get('ana'):                        
+                    if x.get('ana'):
                         node.attrib['ana'] = x.get('pos')
 
                     if x.get('iob'):
@@ -238,16 +238,16 @@ class TeiReader(XMLReader):
                             # find the position of the node in its parent
                             parent_node = node.getparent()
                             node_pos = parent_node.index(node)
-                            
+
                             # start the appropriate entity tag BEFORE word
                             entity_element = ET.Element('rs', {'type': ent_label})
                             entity_element.append(deepcopy(node))
                             node.clear()
-                            
+
                         elif x.get('iob').startswith('I') and entity_element is not None:
                             entity_element.append(deepcopy(node))
                             node.clear()
-                            
+
                         elif x.get('iob').startswith('O') and entity_element is not None:
                             # insert the entity element
                             # hoping that all the words in the entity have the same parent
@@ -255,7 +255,37 @@ class TeiReader(XMLReader):
                             # reset the entity tag
                             parent_node = None
                             entity_element = None
-                            
-                        
+
         return self.tree
 
+    def tokenize(
+        self,
+        XTX_URL='https://xtx.acdh.oeaw.ac.at/exist/restxq/xtx/tokenize/',
+        profile='default'
+    ):
+        """
+        posts self.tree to XTX endpoint for tokenization
+        :param XTX_URL: Endpoint for the XTX service
+        :param profile: The profile-id used for tokenization
+        :return: The tokenized TEI document
+        """
+        try:
+            import requests
+        except ImportError:
+            raise ImportError('Looks like requests is not installed, try pip install -U requests')
+
+        url = "{}{}".format(XTX_URL, profile)
+        payload = self.return_byte_like_object()
+        headers = {
+            'Content-Type': "application/xml",
+            'Accept': "application/xml",
+        }
+        try:
+            response = requests.request("POST", url, data=payload, headers=headers)
+        except Exception as e:
+            print(e)
+            response is False
+        if response:
+            return response.text
+        else:
+            return response

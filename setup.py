@@ -49,8 +49,8 @@ setup(
     version=version,
     description="""A package to ease processing (not only) TEI documents with spaCy""",
     long_description=readme + '\n\n' + history,
-    author='Peter Andorfer, Matthias Schlögl',
-    author_email='matthias.schloegl@oeaw.ac.at, peter.andorfer@oeaw.ac.at',
+    author='Peter Andorfer, Matthias Schlögl, Saranya Balasubramanian',
+    author_email='matthias.schloegl@oeaw.ac.at, peter.andorfer@oeaw.ac.at, saranya.balasubramanian@oeaw.ac.at',
     url='https://github.com/acdh-oeaw/acdh-spacytei',
     packages=[
         'spacytei',
