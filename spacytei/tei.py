@@ -183,8 +183,11 @@ class TeiReader(XMLReader):
         return results
 
     def create_tokenlist(self):
-
-        """ returns a list of token-dicts extracted from tei:w, tei:pc and tei:seg """
+        """
+        creates of token-dicts extracted from tei:w, tei:pc and tei:seg
+        :return: a list of token dicts like:\
+        [{'value': 'Ofen', 'tokenId': 'xTok_000001', 'whitespace': False}]
+        """
 
         doc = self.tree
         expr = "//tei:*[local-name() = $name or local-name() = $pc]"
@@ -205,7 +208,11 @@ class TeiReader(XMLReader):
         return token_list
 
     def process_tokenlist(self, tokenlist):
-        """ takes a tokenlist and updated the tei:w tags. Returns the updated self.tree """
+        """
+        takes enriched tokenlist and updates the tei:w tags. Returns the updated self.tree
+        :param tokenlist: An enriched tokenlist
+        :return: The enriched self.tree
+        """
         expr = './/tei:w[@xml:id=$xmlid]'
         parent_node = None
         node_pos = 0
