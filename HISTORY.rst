@@ -3,6 +3,12 @@
 History
 -------
 
+0.0.9 (2019-02-27)
+++++++++++++++++++
+
+* added functions to process prodigy output files
+* pipline processes access model dir
+
 0.0.6 (2019-02-27)
 ++++++++++++++++++
 
