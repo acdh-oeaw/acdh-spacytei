@@ -10,6 +10,7 @@ from jsonschema.exceptions import ValidationError
 
 from spacytei.conversion import Converter
 from spacytei.config import SPACY_LANG_LST, SPACY_PIPELINE
+from django.conf import settings
 
 
 def check_validity_payload(kind, payload):
@@ -109,9 +110,16 @@ class SpacyProcess(PipelineProcessBase):
     def __init__(self, options=None, pipeline=None, **kwargs):
         self.pipeline = pipeline
         self.options = options
+        if options is None:
+            print('options None')
+            print('pipeline')
+            print(pipeline)
+        else:
+            print(options)
         if self.options is not None:
             if self.options['model']:
-                model = os.path.join('~/media/pipeline_models', self.options['model'])
+                model = os.path.join(getattr(settings, 'NLP_MODELS_FOLDER'), self.options['model'])
+                print('loading the model worked')
             elif self.options['language']:
                 model = SPACY_LANG_LST[self.options['language'].lower()]
         else:
@@ -122,10 +130,12 @@ class SpacyProcess(PipelineProcessBase):
             disable_pipeline = [
                 x for x in SPACY_PIPELINE if x not in self.pipeline
             ]
+        
         self.nlp = spacy.load(
             model,
             disable=disable_pipeline,
         )
+        self.nlp.add_pipe(self.nlp.create_pipe('sentencizer'))
         super().__init__(**kwargs)
         if not self.valid:
             raise ValueError('Something went wrong in the data conversion. Data is not valid.')
