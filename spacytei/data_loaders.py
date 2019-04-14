@@ -85,6 +85,22 @@ def lines_to_sents(input_file, nlp, sent_limit=10):
                     yield "{}\n".format(sent.text.rstrip())
 
 
+def lines_to_jsonl(input_file, output_file="out.jsonl"):
+    """ converts a text file (sent per line) to a spacy jsonl
+    :param input_file: Path to the input file
+    :param output_file: Filename of the output
+    :return: A spacy jsonl {"text": "Lorem ipsum"}
+    """
+    with open(output_file, 'w', encoding="utf-8") as f_out:
+        with open(input_file, encoding="utf-8") as f:
+            for x in f.readlines():
+                text_dict = {
+                    "text": x
+                }
+                f_out.write("{}\n".format(json.dumps(text_dict)))
+    return output_file
+
+
 def sents_to_file(some_generator, output_file='out.txt'):
     """ writes sents provided by some generator to a file
         :param some_generator: A generator yielding strings

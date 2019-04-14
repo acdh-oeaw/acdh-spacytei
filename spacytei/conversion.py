@@ -2,8 +2,7 @@ from spacytei.tcf import Tcf
 from spacytei.tei import TeiReader
 from spacytei.tokenlist import doc_to_tokenlist
 from spacytei.tokenlist import process_tokenlist
-#from .base import check_validity_payload 
-
+# from .base import check_validity_payload
 
 
 MAPPING_CONVERTERS = {'from': {
@@ -12,9 +11,19 @@ MAPPING_CONVERTERS = {'from': {
     'application/xml+tcf': (Tcf, [('xml', 'context.original_xml')], 'create_tokenlist', [],)
 },
     'to': {
-        'application/xml+tei': (TeiReader, [('xml', 'context.original_xml')], 'process_tokenlist', [('tokenlist', '$data_json',),]),
+        'application/xml+tei': (
+            TeiReader,
+            [('xml', 'context.original_xml')],
+            'process_tokenlist',
+            [('tokenlist', '$data_json',), ]
+        ),
         'spacyDoc': (process_tokenlist, [('nlp', 'nlp'), ('tokenlist', '$data_json')]),
-        'application/xml+tcf': (Tcf, [('xml', 'context.original_xml')], 'process_tokenlist', [('tokenlist', '$data_json',),]),
+        'application/xml+tcf': (
+            Tcf,
+            [('xml', 'context.original_xml')],
+            'process_tokenlist',
+            [('tokenlist', '$data_json',), ]
+        ),
         'application/json+acdhlang': (doc_to_tokenlist, [('doc', 'payload')]),
     }
 }
@@ -43,11 +52,11 @@ class Converter:
                 for att_2 in lst_dict:
                     res_3 = res_3[att_2]
                 attr_dict[d[0]] = res_3
-                #check_1 = getattr(self.original_process, 'context', None)
-                #if check_1 is None:
+                # check_1 = getattr(self.original_process, 'context', None)
+                # if check_1 is None:
                 #    print('check worked correct')
                 #    attr_dict[d[0]] = getattr(self.original_process, d[1])
-                #else:
+                # else:
                 #    print(d[1])
                 #    if d[1] not in check_1.keys():
                 #        attr_dict[d[0]] = getattr(self.original_process, d[1])
@@ -67,12 +76,12 @@ class Converter:
     def convert(self, to):
         self.data_converted = self._convert_internal('to', to)
         return self.data_converted
-    
+
     def __init__(self, data_type=None, data=None, original_process=None):
         if data_type not in MAPPING_CONVERTERS['from'].keys() and data_type != 'application/json+acdhlang':
             raise ValueError('Data type specified is not supported by the converter.')
         if original_process is None:
-            raise ValueError('Original process must be specified to get original files.') 
+            raise ValueError('Original process must be specified to get original files.')
         else:
             self.original_process = original_process
         if data_type == 'application/json+acdhlang':
