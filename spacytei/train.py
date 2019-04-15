@@ -112,7 +112,7 @@ def batch_train(
                             losses=losses
                         )
                     except Exception as e:
-                        print(annotations)
+                        print(e)
                 else:
                     try:
                         nlp.update(
@@ -122,7 +122,7 @@ def batch_train(
                             losses=losses,
                         )
                     except Exception as e:
-                        print(annotations)
+                        print(e)
             print("Losses", losses)
             end_time = datetime.datetime.now()
             print("Duration: {}".format(end_time - start_time))
