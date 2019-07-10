@@ -21,29 +21,20 @@ class XMLReader():
         try:
             self.original = ET.parse(self.file)
         except Exception as e:
-            print('could not parse file')
             try:
                 self.original = ET.fromstring(self.file.encode('utf8'))
-                print('read string worked')
             except Exception as e:
-                print('read from string did not work')
-                print('try to download resource')
                 r = requests.get(self.file)
                 self.original = ET.fromstring(r.text)
         try:
             self.tree = ET.parse(self.file)
         except Exception as e:
-            print('could not parse tree')
             try:
                 self.tree = ET.fromstring(self.file.encode('utf8'))
-                print('read string worked')
             except Exception as e:
-                print('read from string did not work')
-                print('try to download resource')
                 r = requests.get(self.file)
                 self.tree = ET.fromstring(r.text)
         except Exception as e:
-            print('parsing didnt work')
             self.parsed_file = "parsing didn't work"
 
     def return_byte_like_object(self):

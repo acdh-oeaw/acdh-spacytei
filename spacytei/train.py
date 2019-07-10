@@ -62,19 +62,26 @@ def batch_train(
 
     # create the built-in pipeline components and add them to the pipeline
     # nlp.create_pipe works for built-ins that are registered with spaCy
+    reset_weights = False  # https://github.com/explosion/spaCy/issues/3782)
     if "ner" not in nlp.pipe_names:
         ner = nlp.create_pipe("ner")
         nlp.add_pipe(ner, last=True)
+        reset_weights = True
     # otherwise, get it so we can add labels
     else:
         ner = nlp.get_pipe("ner")
 
     if new_label is not None:
-        if model is None:
+        if model is None or reset_weights:
             optimizer = nlp.begin_training()
         else:
             optimizer = nlp.entity.create_optimizer()
         ner.add_label(new_label)
+    else:
+        if model is None or reset_weights:
+            optimizer = nlp.begin_training()
+        else:
+            optimizer = nlp.entity.create_optimizer()
 
     TRAIN_DATA = train_data
     if n_samples is not None:

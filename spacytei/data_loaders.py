@@ -21,7 +21,7 @@ def get_doc_list(domain, app_name, collection='editions', verbose=True):
     else:
         print(
             "There is a problem with connection to {}, status code: {}".format(
-                r.status_code, endpoint
+                endpoint, r.status_code
             )
         )
         return None
@@ -35,7 +35,8 @@ def get_doc_list(domain, app_name, collection='editions', verbose=True):
 
 def stream_docs_to_file(
     domain, app_name, collection='editions',
-    spacy_model='de_core_news_sm', min_len=15, verbose=True
+    spacy_model='de_core_news_sm', min_len=15, verbose=True, write_mode='a',
+    custom_file_name=None
 ):
 
     """ fetches TEI-Docs from an dsebaseapp instance and streams sents to file
@@ -46,15 +47,21 @@ def stream_docs_to_file(
         :spacy_model: Spacy model used for sentence splitting.
         :min_len: The minimum amount of characters for a senetence to be stored.
         :verbose: Defaults to True and logs some basic information
+        :write_mode: Defaults to 'a' -> append; use 'w' to overwrite the file
+        :custom_file_name: name of the output file.\
+        If none, the app_name is the name of the output file
         :return: A list comprehension as well as as the filename where the corpus is stored
     """
 
     files = get_doc_list(domain, app_name, collection, verbose=verbose)
-    filename = '{}.txt'.format(app_name)
+    if custom_file_name is not None:
+        filename = custom_file_name
+    else:
+        filename = '{}.txt'.format(app_name)
     if verbose:
         print("start streaming documents to {}".format(filename))
     nlp = spacy.load(spacy_model)
-    with open(filename, 'w', encoding="utf-8") as f:
+    with open(filename, write_mode, encoding="utf-8") as f:
         for x in files:
             url = "{}?format=text".format(x)
             if verbose:
