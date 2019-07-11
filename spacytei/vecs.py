@@ -39,7 +39,9 @@ def read_input(input_file, lower=False):
             yield simple_preprocess(line, lower=lower)
 
 
-def create_word_vecs(input_file, size=300, window=5, min_count=2, workers=4, lower=False):
+def create_word_vecs(
+    input_file, size=300, window=5, min_count=2, workers=4, lower=False, output_file=None
+):
     """ creates word embeddings
         :input_file: Name of the file to process
         :size: The number of dimensions of the embedding
@@ -52,6 +54,9 @@ def create_word_vecs(input_file, size=300, window=5, min_count=2, workers=4, low
         [x for x in documents],
         size=size, window=window, min_count=min_count, workers=workers
     )
-    model_file_name = "{}.word2vec.model".format(input_file)
+    if output_file is not None:
+        model_file_name = "{}.word2vec.model".format(output_file)
+    else:
+        model_file_name = "{}.word2vec.model".format(input_file)
     model.wv.save_word2vec_format(model_file_name)
     return model_file_name
