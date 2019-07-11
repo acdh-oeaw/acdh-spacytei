@@ -57,7 +57,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'spacy>=2.0.18',
+        'spacy>=2.1.4',
         'scikit-learn>=0.20.2',
         'gensim>=3.7.1',
         'lxml>=4.1.1',
