@@ -200,10 +200,16 @@ class TeiReader(XMLReader):
             try:
                 if x.getnext().tag.endswith('seg'):
                     token['whitespace'] = True
-                else:
+                elif x.getnext().tag.endswith('pc'):
                     token['whitespace'] = False
+                elif x.getnext().tag.endswith('w'):
+                    token['whitespace'] = True
+                elif x.getnext().tag.endswith('lb'):
+                    token['whitespace'] = True
+                else:
+                    token['whitespace'] = True
             except AttributeError:
-                token['whitespace'] = False
+                token['whitespace'] = True
             token_list.append(token)
         return token_list
 
