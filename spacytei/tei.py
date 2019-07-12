@@ -213,61 +213,84 @@ class TeiReader(XMLReader):
             token_list.append(token)
         return token_list
 
-    def process_tokenlist(self, tokenlist):
+    def process_tokenlist(self, tokenlist, by_id=False, verbose=True):
         """
         takes enriched tokenlist and updates the tei:w tags. Returns the updated self.tree
         :param tokenlist: An enriched tokenlist
+        :param by_id: Match tokenlist items with xml-nodes by their ID,\
+        defaults to False (because ID-Lookup is super slow)
         :return: The enriched self.tree
         """
-        expr = './/tei:w[@xml:id=$xmlid]'
-        parent_node = None
-        node_pos = 0
-        entity_element = None
-        for sent in tokenlist:
-            for x in sent['tokens']:
-                try:
-                    node = self.tree.xpath(expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
-                except IndexError:
-                    node = None
-                if node is not None:
-                    if x.get('lemma'):
-                        node.attrib['lemma'] = x.get('lemma')
+        expr = "//tei:*[local-name() = $name or local-name() = $pc]"
+        nr_tokens = len(tokenlist)
+        list_nodes = self.tree.xpath(expr, name="w", pc="pc", namespaces=self.ns_tei)
+        nr_nodes = len(list_nodes)
+        if verbose:
+            print("# tokens: {}".format(nr_tokens))
+            print("# token-nodes: {}".format(nr_nodes))
+        if by_id:
+            parent_node = None
+            node_pos = 0
+            entity_element = None
+            for sent in tokenlist:
+                for x in sent['tokens']:
+                    try:
+                        node = self.tree.xpath(expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
+                    except IndexError:
+                        node = None
+                    if node is not None:
+                        if x.get('lemma'):
+                            node.attrib['lemma'] = x.get('lemma')
 
-                    if x.get('type'):
-                        node.attrib['type'] = x.get('type')
+                        if x.get('type'):
+                            node.attrib['type'] = x.get('type')
 
-                    if x.get('ana'):
-                        node.attrib['ana'] = x.get('pos')
+                        if x.get('ana'):
+                            node.attrib['ana'] = x.get('pos')
 
-                    if x.get('iob'):
-                        # TO DO: Preserve the position other TEI tags such as
-                        # pg, lb, etc.
-                        # At the moment, they'll get pushed to
-                        # the end of the enclosing rs tag.
-                        node.attrib['ent_iob'] = x.get('iob')
-                        if x.get('iob').startswith('B-'):
-                            ent_pos, ent_label = x.get('iob').split('-')
+                        if x.get('iob'):
+                            # TO DO: Preserve the position other TEI tags such as
+                            # pg, lb, etc.
+                            # At the moment, they'll get pushed to
+                            # the end of the enclosing rs tag.
+                            node.attrib['ent_iob'] = x.get('iob')
+                            if x.get('iob').startswith('B-'):
+                                ent_pos, ent_label = x.get('iob').split('-')
 
-                            # find the position of the node in its parent
-                            parent_node = node.getparent()
-                            node_pos = parent_node.index(node)
+                                # find the position of the node in its parent
+                                parent_node = node.getparent()
+                                node_pos = parent_node.index(node)
 
-                            # start the appropriate entity tag BEFORE word
-                            entity_element = ET.Element('rs', {'type': ent_label})
-                            entity_element.append(deepcopy(node))
-                            node.clear()
+                                # start the appropriate entity tag BEFORE word
+                                entity_element = ET.Element('rs', {'type': ent_label})
+                                entity_element.append(deepcopy(node))
+                                node.clear()
 
-                        elif x.get('iob').startswith('I') and entity_element is not None:
-                            entity_element.append(deepcopy(node))
-                            node.clear()
+                            elif x.get('iob').startswith('I') and entity_element is not None:
+                                entity_element.append(deepcopy(node))
+                                node.clear()
 
-                        elif x.get('iob').startswith('O') and entity_element is not None:
-                            # insert the entity element
-                            # hoping that all the words in the entity have the same parent
-                            parent_node.insert(node_pos, entity_element)
-                            # reset the entity tag
-                            parent_node = None
-                            entity_element = None
+                            elif x.get('iob').startswith('O') and entity_element is not None:
+                                # insert the entity element
+                                # hoping that all the words in the entity have the same parent
+                                parent_node.insert(node_pos, entity_element)
+                                # reset the entity tag
+                                parent_node = None
+                                entity_element = None
+        else:
+            print('not by ID')
+            tokenlist_2 = []
+            for sent in tokenlist:
+                for x in sent['tokens']:
+                    tokenlist_2.append(x)
+            tokenlist = tokenlist_2
+            counter = 0
+            for x in list_nodes:
+                x.attrib['lemma'] = tokenlist[counter]['lemma']
+                x.attrib['iob'] = tokenlist[counter]['iob']
+                x.attrib['type'] = tokenlist[counter]['type']
+                x.attrib['ana'] = tokenlist[counter]['pos']
+                counter += 1
 
         return self.tree
 
