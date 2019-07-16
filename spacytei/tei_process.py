@@ -58,8 +58,18 @@ def teis_to_traindata_sents(
     """
 
     TRAIN_DATA = []
+    ERRORS = []
     for x in files:
-        tei_doc = TeiReader(x)
+        try:
+            tei_doc = TeiReader(x)
+        except Exception as e:
+            ERRORS.append(
+                {
+                    'file': x,
+                    'error': e
+                }
+            )
+            continue
         try:
             ners = tei_doc.ne_offsets_by_sent(
                 parent_nodes=parent_node, ne_xpath=ne_xpath, model=model, NER_TAG_MAP=NER_TAG_MAP
@@ -68,4 +78,4 @@ def teis_to_traindata_sents(
             print("Error: {} in file: {}".format(e, x))
         [TRAIN_DATA.append(x) for x in ners]
 
-    return TRAIN_DATA
+    return TRAIN_DATA, ERRORS

@@ -222,6 +222,7 @@ class TeiReader(XMLReader):
         :return: The enriched self.tree
         """
         expr = "//tei:*[local-name() = $name or local-name() = $pc]"
+        word_expr = './/tei:w[@xml:id=$xmlid]'
         nr_tokens = len(tokenlist)
         list_nodes = self.tree.xpath(expr, name="w", pc="pc", namespaces=self.ns_tei)
         nr_nodes = len(list_nodes)
@@ -235,7 +236,7 @@ class TeiReader(XMLReader):
             for sent in tokenlist:
                 for x in sent['tokens']:
                     try:
-                        node = self.tree.xpath(expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
+                        node = self.tree.xpath(word_expr, xmlid=x['tokenId'], namespaces=self.nsmap)[0]
                     except IndexError:
                         node = None
                     if node is not None:

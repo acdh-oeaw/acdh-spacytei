@@ -3,6 +3,14 @@
 History
 -------
 
+0.1.3 (2019-07-16)
+++++++++++++++++++
+
+* added functions to process doccano output files
+* update to spacy v2.1
+* tei.TeiReader.process_tokenlist() method works now also with list-index lookup
+* other things....
+
 0.0.9 (2019-02-27)
 ++++++++++++++++++
 

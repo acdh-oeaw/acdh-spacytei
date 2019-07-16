@@ -58,3 +58,5 @@ out.txt
 enriched.xml
 hbas*
 out.*
+
+data/*
